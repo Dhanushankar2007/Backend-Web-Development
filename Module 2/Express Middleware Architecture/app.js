@@ -29,6 +29,9 @@ const usersRouter = require('./routes/users');
 // const requestId = require('./middleware/requestId');
 // const logger = require('./middleware/logger');
 // const timing = require('./middleware/timing');
+const requestId = require('./middleware/requestId');
+const logger = require('./middleware/logger');
+const timing = require('./middleware/timing');
 
 const app = express();
 
@@ -43,10 +46,16 @@ app.use(express.json());
 //   app.use(logger);
 //   app.use(timing);
 // ─────────────────────────────────────────────────────────────────────────────
+app.use(requestId);
+app.use(logger);
+app.use(timing);
 
 // Two mounted routers (do not remove these).
 app.use('/posts', postsRouter);
 app.use('/users', usersRouter);
+
+// Mount your middleware here
+
 
 const PORT = 3000;
 app.listen(PORT, () => {

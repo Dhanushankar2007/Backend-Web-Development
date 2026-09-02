@@ -15,4 +15,10 @@
 
 module.exports = function logger(req, res, next) {
   // TODO: register res.on('finish', ...) to log method, path, status, then next().
+  res.on('finish', () => {
+    const logMessage = `${req.id ? `[${req.id}] ` : ''}${req.method} ${req.path} ${res.statusCode}`;
+    console.log(logMessage);
+  });
+  next();
+
 };
