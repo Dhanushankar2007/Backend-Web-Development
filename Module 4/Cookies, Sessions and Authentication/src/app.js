@@ -10,8 +10,19 @@ app.use(express.json());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use('/auth', authRoutes);
 app.use((error, req, res, next) => {
-  console.error(error.message);
-  res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
+  console.error(error.stack || error);
+
+  const status = error.status || error.statusCode || 500;
+
+  res.status(status).json({
+    error: {
+      code: error.code || 'INTERNAL_ERROR',
+      message:
+        status === 500
+          ? 'Internal server error'
+          : error.message,
+    },
+  });
 });
 
 const port = Number(process.env.PORT || 3000);
