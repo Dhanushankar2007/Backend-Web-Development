@@ -23,4 +23,20 @@
 //   const rateLimit = require('express-rate-limit');
 //   module.exports = rateLimit({ ...options });
 
-module.exports = (req, res, next) => next(); // TODO: replace this stub
+// module.exports = (req, res, next) => next(); // TODO: replace this stub
+const rateLimit = require('express-rate-limit');
+
+module.exports = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 requests per windowMs
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  skipSuccessfulRequests: true, // Only count failed requests towards the limit
+  handler: (req, res) => {
+    const retryAfter = Math.ceil(
+        (req.rateLimit.resetTime.getTime() - Date.now()) / 1000
+    );
+    res.set('Retry-After', String(Math.max(retryAfter, 1)));    
+    res.status(429).json({ error: 'Too many requests, please try again later.' });
+  },
+});
